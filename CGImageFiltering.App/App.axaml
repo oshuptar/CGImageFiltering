@@ -1,8 +1,9 @@
+<!-- TODO: Change  to default ThemeVariant when finish developing-->
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CGImageFiltering.App.App"
              xmlns:local="using:CGImageFiltering.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Light">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>

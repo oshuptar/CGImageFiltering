@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CGImageFiltering.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a01a7b12d7e2314db0eb1f72a0fae1c2d83c9c99")]
 [assembly: System.Reflection.AssemblyProductAttribute("CGImageFiltering.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CGImageFiltering.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

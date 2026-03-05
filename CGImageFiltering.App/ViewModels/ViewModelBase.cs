@@ -4,4 +4,5 @@ namespace CGImageFiltering.App.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject
 {
+    
 }
