@@ -7,6 +7,6 @@
              x:DataType="viewModels:MainWindowViewModel"
              x:Class="CGImageFiltering.App.Views.Controls.ImageArea">
     <Border Padding="8">
-        <Image Source="{Binding FilteredImage}" Stretch="Uniform"/>
+        <Image Source="{Binding Image}" Stretch="Uniform"/>
     </Border>
 </UserControl>

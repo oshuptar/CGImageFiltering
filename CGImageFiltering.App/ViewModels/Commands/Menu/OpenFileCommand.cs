@@ -3,17 +3,10 @@ using System.Windows.Input;
 
 namespace CGImageFiltering.App.ViewModels.Commands.Menu;
 
-public class OpenFileCommand : ICommand
+public class OpenFileCommand(Action<object?> execute, Func<object?, bool> canExecute) : ICommand
 {
-    public bool CanExecute(object? parameter)
-    {
-        return true;
-    }
-
-    public void Execute(object? parameter)
-    {
-        // TODO: implement open file dialog and image loading.
-    }
+    public bool CanExecute(object? parameter) => canExecute(parameter);
+    public void Execute(object? parameter) => execute(parameter);
 
     public event EventHandler? CanExecuteChanged;
 }
