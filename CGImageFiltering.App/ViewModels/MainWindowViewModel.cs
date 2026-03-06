@@ -1,4 +1,5 @@
-﻿    using System.Linq;
+﻿    using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Threading.Tasks;
     using Avalonia.Media.Imaging;
     using Avalonia.Platform.Storage;
@@ -6,6 +7,8 @@
     using CGImageFiltering.App.Buffers;
     using CGImageFiltering.App.Converters;
     using CGImageFiltering.App.Converters.Interfaces;
+    using CGImageFiltering.App.Models;
+    using CGImageFiltering.App.Models.Interfaces;
     using GCImageFiltering.Core.Buffers;
     using GCImageFiltering.Core.Filters.Convolution;
     using GCImageFiltering.Core.Filters.Function;
@@ -55,27 +58,27 @@
         public bool IsSaveEnabled => Image is not null;
         private DirectBitmap? OriginalImage { get; set; }
         private DirectBitmap? FilteredImage { get; set; }
-        
-        // TODO: refactor so that the list is visible and there exists a possibility to choose a filter to apply from this list
-        // Reduce commands to only ApplySelectedFilterCommand then
         public Commands.RelayCommand OpenFileCommand { get; }
         public Commands.RelayCommand SaveFileCommand { get; }
         public Commands.RelayCommand ToggleImagePreviewCommand { get; }
-        public Commands.RelayCommand ApplyBrigthnessFilterCommand { get; } 
-        public Commands.RelayCommand ApplyInversionFilterCommand { get; }
-        public Commands.RelayCommand ApplyContrastEnhancementFilterCommand { get; }
-        public Commands.RelayCommand ApplyGammaCorrectionFilterCommand { get; }
-        public Commands.RelayCommand ApplyBlurFilterCommand { get; }
+        public Commands.RelayCommand ApplySelectedFilterCommand { get; }
+
+        public ObservableCollection<IFilterOption> Filters { get; } =
+        [
+            new FilterOption("Brightness", () => new BrightnessFilter()),
+            new FilterOption("Inversion", () => new InversionFilter()),
+            new FilterOption("Contrast Enhancement", () => new ContrastEnhancementFilter()),
+            new FilterOption("Gamma Correction", () => new GammaCorrectionFilter()),
+            new FilterOption("Blur", () => new BoxBlurConvolutionFilter())
+        ];
+            
+        public IFilterOption SelectedFilter { get; set; }
         public MainWindowViewModel()
         {
             OpenFileCommand = new Commands.RelayCommand(OpenFileDialog, _ => true);
             SaveFileCommand = new Commands.RelayCommand(SaveFile, _ => Image is not null);
             ToggleImagePreviewCommand =  new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
-            ApplyBrigthnessFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new BrightnessFilter()), CanApplyFilter);
-            ApplyInversionFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new InversionFilter()), CanApplyFilter);
-            ApplyContrastEnhancementFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new ContrastEnhancementFilter()), CanApplyFilter);
-            ApplyGammaCorrectionFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new GammaCorrectionFilter()), CanApplyFilter);
-            ApplyBlurFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new BoxBlurConvolutionFilter()), CanApplyFilter);
+            ApplySelectedFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(SelectedFilter!.FilterFactory()), CanApplyFilter);
         }
 
         private async void OpenFileDialog(object? parameter)
@@ -166,10 +169,6 @@
         {
             SaveFileCommand.RaiseCanExecuteChanged();
             ToggleImagePreviewCommand.RaiseCanExecuteChanged();
-            ApplyBrigthnessFilterCommand.RaiseCanExecuteChanged();
-            ApplyInversionFilterCommand.RaiseCanExecuteChanged();
-            ApplyContrastEnhancementFilterCommand.RaiseCanExecuteChanged();
-            ApplyGammaCorrectionFilterCommand.RaiseCanExecuteChanged();
-            ApplyBlurFilterCommand.RaiseCanExecuteChanged();
+            ApplySelectedFilterCommand.RaiseCanExecuteChanged();
         }
     }
