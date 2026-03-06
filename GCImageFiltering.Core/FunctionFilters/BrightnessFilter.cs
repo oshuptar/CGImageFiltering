@@ -7,7 +7,7 @@ public class BrightnessFilter : IFilter
 {
     public int Delta { get; set; } 
     
-    public BrightnessFilter(int delta)
+    public BrightnessFilter(int delta = 20)
     {
         Delta = delta;
     }
@@ -16,23 +16,17 @@ public class BrightnessFilter : IFilter
     {
         for (int y = 0; y < buffer.Height; y++)
         {
-            int rowStart = y * buffer.Stride;
             for (int x = 0; x < buffer.Width; x++)
             {
-                int i = rowStart + x * buffer.BytesPerPixel;
-                buffer.Pixels[i + 0] = ClampToByte(buffer.Pixels[i + 0] + Delta);
-                buffer.Pixels[i + 1] = ClampToByte(buffer.Pixels[i + 1] + Delta);
-                buffer.Pixels[i + 2] = ClampToByte(buffer.Pixels[i + 2] + Delta);
+                int i = y * buffer.Width + x;
+                buffer.Pixels[i].R = ClampToByte(buffer.Pixels[i].R + Delta);
+                buffer.Pixels[i].G = ClampToByte(buffer.Pixels[i].G + Delta);
+                buffer.Pixels[i].B = ClampToByte(buffer.Pixels[i].B + Delta);
             }
         }
-
         return buffer;
     }
+    private static byte ClampToByte(int value) => (byte)Math.Clamp(value, 0, 255);
+      
     
-    private static byte ClampToByte(int value)
-    {
-        if (value < 0) return 0;
-        if (value > 255) return 255;
-        return (byte)value;
-    }
 }

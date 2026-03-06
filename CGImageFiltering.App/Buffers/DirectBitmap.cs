@@ -13,7 +13,7 @@ public sealed class DirectBitmap
     public int Height { get; }
     public int Stride { get; }
     public Vector Dpi { get; }
-    public byte[] Pixels { get; }
+    public byte[] Pixels { get; set; }
     public WriteableBitmap Bitmap { get; }
     private DirectBitmap(int width, int height, Vector dpi, PixelFormat pixelFormat)
     {

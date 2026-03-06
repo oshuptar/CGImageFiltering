@@ -11,8 +11,5 @@ public class RelayCommand(Action<object?> execute, Func<object?, bool> canExecut
 
     public event EventHandler? CanExecuteChanged;
     
-    public void RaiseCanExecuteChanged()
-    {
-        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }

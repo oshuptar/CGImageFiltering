@@ -9,16 +9,14 @@ public class InversionFilter : IFilter
     {
         for (int y = 0; y < buffer.Height; y++)
         {
-            int rowStart = y * buffer.Stride;
             for (int x = 0; x < buffer.Width; x++)
             {
-                int i = rowStart + x * buffer.BytesPerPixel;
-                buffer.Pixels[i] = (byte)(255 - buffer.Pixels[i]); // R         
-                buffer.Pixels[i + 1] = (byte)(255 - buffer.Pixels[i + 1]);//G
-                buffer.Pixels[i + 2] = (byte)(255 - buffer.Pixels[i + 2]);//B
+                int i = y * buffer.Width + x;
+                buffer.Pixels[i].R = (byte)(255 - buffer.Pixels[i].R);      
+                buffer.Pixels[i].G = (byte)(255 - buffer.Pixels[i].G);//G
+                buffer.Pixels[i].B = (byte)(255 - buffer.Pixels[i].B);//B
             }
         }
-        
         return buffer;
     }
 }

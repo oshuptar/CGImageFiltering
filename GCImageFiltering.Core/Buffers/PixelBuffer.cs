@@ -4,15 +4,12 @@ public class PixelBuffer
 {
     public int Width { get; }
     public int Height { get; }
-    public int Stride { get; }
-    public byte[] Pixels { get; }
-    public int BytesPerPixel => Stride/Width; 
+    public RgbaPixel[] Pixels { get; }
 
-    public PixelBuffer(int width, int height, int stride, byte[] pixels)
+    public PixelBuffer(int width, int height, RgbaPixel[] pixels)
     {
         Width = width;
         Height = height;
-        Stride = stride;
         Pixels = pixels;
     }
 }
