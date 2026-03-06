@@ -35,4 +35,27 @@ public partial class Toolbar : UserControl
         if(viewModel.OpenFileCommand.CanExecute(files[0]))
             viewModel.OpenFileCommand.Execute(files[0]);
     }
+
+    private async void SaveClickHandler(object? sender, RoutedEventArgs e)
+    {
+        var window = TopLevel.GetTopLevel(this) as Window;
+        if (window is null) return;
+
+        IStorageFile? file = await  window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+        {
+            Title = "Save Image",
+            DefaultExtension = ".png",
+            SuggestedFileName = "filtered.png",
+            SuggestedFileType = FilePickerFileTypes.ImagePng,
+            FileTypeChoices = [FilePickerFileTypes.ImagePng],
+        });
+
+        if (file is null) return;
+        
+        MainWindowViewModel? viewModel = window.DataContext as MainWindowViewModel;
+        if (viewModel is null) return;
+        
+        if(viewModel.SaveFileCommand.CanExecute(file))
+            viewModel.SaveFileCommand.Execute(file);
+    }
 }

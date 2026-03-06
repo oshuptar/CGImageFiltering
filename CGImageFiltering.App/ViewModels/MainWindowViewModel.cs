@@ -66,9 +66,11 @@
             RefreshCommands();
         }
 
-        private void SaveFile(object? parameter)
+        private async void SaveFile(object? parameter)
         {
-            
+            if (parameter is not IStorageFile file) return;
+            await using var stream = await file.OpenWriteAsync();
+            FilteredImage?.Bitmap.Save(stream);
         }
         
         private void ToggleImagePreview(object? parameter)

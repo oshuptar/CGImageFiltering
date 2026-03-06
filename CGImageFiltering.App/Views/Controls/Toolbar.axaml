@@ -9,7 +9,7 @@
     
     <Menu>
         <MenuItem Header="Open" Click="OpenClickHandler"/>
-        <MenuItem Header="Save" Command="{Binding SaveFileCommand}"/>
+        <MenuItem Header="Save" Click="SaveClickHandler"/>
         <MenuItem Header="{Binding PreviewButtonText}" Command="{Binding ToggleImagePreviewCommand}" />
     </Menu>
 </UserControl>
