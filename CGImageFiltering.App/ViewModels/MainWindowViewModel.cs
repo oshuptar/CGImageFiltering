@@ -1,11 +1,15 @@
-﻿    using Avalonia.Media.Imaging;
+﻿    using System.Linq;
+    using System.Threading.Tasks;
+    using Avalonia.Media.Imaging;
     using Avalonia.Platform.Storage;
+    using Avalonia.Threading;
     using CGImageFiltering.App.Buffers;
     using CGImageFiltering.App.Converters;
     using CGImageFiltering.App.Converters.Interfaces;
     using GCImageFiltering.Core.Buffers;
-    using GCImageFiltering.Core.FunctionFilters;
-    using GCImageFiltering.Core.FunctionFilters.Interfaces;
+    using GCImageFiltering.Core.Filters.Convolution;
+    using GCImageFiltering.Core.Filters.Function;
+    using GCImageFiltering.Core.Filters.Interfaces;
 
     namespace CGImageFiltering.App.ViewModels;
 
@@ -19,6 +23,7 @@
             {
                 _image = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSaveEnabled));
             }
         }
         public string PreviewButtonText => IsOriginalDisplayed ? " Show Filtered" : "Show Original";
@@ -34,8 +39,25 @@
                 OnPropertyChanged(nameof(PreviewButtonText));
             }
         }
+        
+        private bool _isBusy = false;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            private set
+            {
+                if (_isBusy == value) return;
+                _isBusy = value;
+                OnPropertyChanged();
+                RefreshCommands();
+            }
+        }
+        public bool IsSaveEnabled => Image is not null;
         private DirectBitmap? OriginalImage { get; set; }
         private DirectBitmap? FilteredImage { get; set; }
+        
+        // TODO: refactor so that the list is visible and there exists a possibility to choose a filter to apply from this list
+        // Reduce commands to only ApplySelectedFilterCommand then
         public Commands.RelayCommand OpenFileCommand { get; }
         public Commands.RelayCommand SaveFileCommand { get; }
         public Commands.RelayCommand ToggleImagePreviewCommand { get; }
@@ -43,6 +65,7 @@
         public Commands.RelayCommand ApplyInversionFilterCommand { get; }
         public Commands.RelayCommand ApplyContrastEnhancementFilterCommand { get; }
         public Commands.RelayCommand ApplyGammaCorrectionFilterCommand { get; }
+        public Commands.RelayCommand ApplyBlurFilterCommand { get; }
         public MainWindowViewModel()
         {
             OpenFileCommand = new Commands.RelayCommand(OpenFileDialog, _ => true);
@@ -52,6 +75,7 @@
             ApplyInversionFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new InversionFilter()), CanApplyFilter);
             ApplyContrastEnhancementFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new ContrastEnhancementFilter()), CanApplyFilter);
             ApplyGammaCorrectionFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new GammaCorrectionFilter()), CanApplyFilter);
+            ApplyBlurFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(new BoxBlurConvolutionFilter()), CanApplyFilter);
         }
 
         private async void OpenFileDialog(object? parameter)
@@ -68,6 +92,8 @@
 
         private async void SaveFile(object? parameter)
         {
+            // TODO: add dialog notifying the user that there is no image loaded
+            
             if (parameter is not IStorageFile file) return;
             await using var stream = await file.OpenWriteAsync();
             FilteredImage?.Bitmap.Save(stream);
@@ -83,20 +109,48 @@
             RefreshCommands();
         }
 
-        private void ApplyFilter(IFilter filter)
+        private async void ApplyFilter(IFilter filter)
         {
             if (Image is null) return;
-            IByteConverter byteConverter = new RgbaByteConverter();
-            PixelBuffer filteredBuffer =
-                filter.Apply(new PixelBuffer(Image.Width, Image.Height, byteConverter.ConvertToPixel(Image.Pixels, Image.Width, Image.Height)));
-            Image.Pixels = byteConverter.ConvertToByte(filteredBuffer.Pixels, filteredBuffer.Width, filteredBuffer.Height);
-            Image.UpdateBitmap();
-            InvalidateImage();
+            
+            var image = Image; 
+            var width = image.Width;
+            var height = image.Height;
+            var sourceBytes = image.Pixels.ToArray();
+            
+            IByteConverter byteConverter = new RgbaByteConverter(); 
+            IsBusy = true;
+            var result = await Task.Run(() =>
+            {
+                var pixelBuffer = new PixelBuffer(
+                    width,
+                    height,
+                    byteConverter.ConvertToPixel(sourceBytes, width, height));
+
+                var filteredBuffer = filter.Apply(pixelBuffer);
+
+                return byteConverter.ConvertToByte(
+                    filteredBuffer.Pixels,
+                    filteredBuffer.Width,
+                    filteredBuffer.Height);
+            });
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // In case race condition happened and the user changed the image while the filter was running
+                if (!ReferenceEquals(image, Image))
+                    return;
+                
+                image.Pixels = result;
+                image.UpdateBitmap();
+                InvalidateImage();
+                IsBusy = false;
+            });
         }
+        
 
         private bool CanApplyFilter(object? parameter)
         {
-            return Image is not null && !IsOriginalDisplayed;
+            return Image is not null && !IsOriginalDisplayed && !IsBusy;
         }
 
         private void InvalidateImage()
@@ -116,5 +170,6 @@
             ApplyInversionFilterCommand.RaiseCanExecuteChanged();
             ApplyContrastEnhancementFilterCommand.RaiseCanExecuteChanged();
             ApplyGammaCorrectionFilterCommand.RaiseCanExecuteChanged();
+            ApplyBlurFilterCommand.RaiseCanExecuteChanged();
         }
     }

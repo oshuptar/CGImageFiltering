@@ -1,6 +1,6 @@
 using GCImageFiltering.Core.Buffers;
 
-namespace GCImageFiltering.Core.FunctionFilters.Interfaces;
+namespace GCImageFiltering.Core.Filters.Interfaces;
 
 public interface IFilter
 {

@@ -13,6 +13,7 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 
                 <Button Content="Apply Filter"
@@ -23,5 +24,7 @@
                         Command="{Binding ApplyGammaCorrectionFilterCommand}"/>
                 <Button Grid.Row="3" Content="Contrast Enhancement" 
                         Command="{Binding ApplyContrastEnhancementFilterCommand}"/>
+                <Button Grid.Row="4" Content="Blur" 
+                        Command="{Binding ApplyBlurFilterCommand}"/>
             </Grid>
 </UserControl>

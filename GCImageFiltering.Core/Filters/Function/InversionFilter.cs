@@ -1,7 +1,7 @@
 using GCImageFiltering.Core.Buffers;
-using GCImageFiltering.Core.FunctionFilters.Interfaces;
+using GCImageFiltering.Core.Filters.Interfaces;
 
-namespace GCImageFiltering.Core.FunctionFilters;
+namespace GCImageFiltering.Core.Filters.Function;
 
 public class InversionFilter : IFilter
 {
