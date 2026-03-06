@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CGImageFiltering.App", "CGImageFiltering.App\CGImageFiltering.App.csproj", "{00491DC7-DF6F-4799-8ED1-B6EFB94A01F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GCImageFiltering.Core", "GCImageFiltering.Core\GCImageFiltering.Core.csproj", "{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{00491DC7-DF6F-4799-8ED1-B6EFB94A01F8}.Release|x64.Build.0 = Release|Any CPU
 		{00491DC7-DF6F-4799-8ED1-B6EFB94A01F8}.Release|x86.ActiveCfg = Release|Any CPU
 		{00491DC7-DF6F-4799-8ED1-B6EFB94A01F8}.Release|x86.Build.0 = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|x64.Build.0 = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Debug|x86.Build.0 = Debug|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|x64.Build.0 = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|x86.ActiveCfg = Release|Any CPU
+		{0E26E28E-81D4-4E22-9EE2-BDF50E7880ED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

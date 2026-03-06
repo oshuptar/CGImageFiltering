@@ -10,6 +10,6 @@
     <Menu>
         <MenuItem Header="Open" Click="OpenClickHandler"/>
         <MenuItem Header="Save" Command="{Binding SaveFileCommand}"/>
-        <MenuItem Header="Reset" Command="{Binding ResetFileCommand}"/>
+        <MenuItem Header="Preview" Command="{Binding ToggleImagePreviewCommand}"/>
     </Menu>
 </UserControl>
