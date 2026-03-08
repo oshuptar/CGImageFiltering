@@ -7,10 +7,10 @@
              x:DataType="vm:EditorViewModel"
              x:Class="CGImageFiltering.App.Views.Controls.EditorArea">
     
-            <Grid MinWidth="256">
+            <Grid MinWidth="300">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition MinHeight="256" 
+                    <RowDefinition MinHeight="300" 
                                    Height="Auto">
                     </RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -45,6 +45,8 @@
                             Height="256"
                             Background="White"
                             PointerPressed="OnPointerPressed"
+                            PointerMoved="OnPointerMoved"
+                            PointerReleased="OnPointerReleased"
                             >
                         <Polyline Points="{Binding PolylinePoints}"
                                   Stroke="Black"
@@ -62,8 +64,8 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Ellipse Width="6"
-                                             Height="6"
+                                    <Ellipse Width="12"
+                                             Height="12"
                                              Fill="White"
                                              Stroke="Blue"
                                              StrokeThickness="2">

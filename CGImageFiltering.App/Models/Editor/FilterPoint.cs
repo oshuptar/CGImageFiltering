@@ -9,7 +9,7 @@ namespace CGImageFiltering.App.Models.Editor;
 
 public class FilterPoint : INotifyPropertyChanged
 {
-    private const int Radius = 3;
+    public const int Radius = 6;
     public int X
     {
         get => field;
@@ -19,6 +19,8 @@ public class FilterPoint : INotifyPropertyChanged
                 throw new ArgumentException("Value must be between 0 and 255", nameof(value));
             field = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ScreenX));
+            OnPropertyChanged(nameof(EllipseX));
         }
     }
     public int Y 
@@ -30,6 +32,8 @@ public class FilterPoint : INotifyPropertyChanged
                 throw new ArgumentException("Value must be between 0 and 255", nameof(value));
             field = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ScreenY));
+            OnPropertyChanged(nameof(EllipseY));
         } 
     }
 
