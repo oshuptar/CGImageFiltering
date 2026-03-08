@@ -72,7 +72,8 @@
             new FilterOption("Blur", () => new BoxBlurConvolutionFilter()),
             new FilterOption("Gaussian Smoothing", () => new GaussianSmoothingConvolutionFilter()),
             new FilterOption("Sharpen", () => new SharpenConvolutionFilter()),
-            new FilterOption("Horizontal Edge Detection", () => new HorizontalEdgeDetectionConvolutionFilter())
+            new FilterOption("Horizontal Edge Detection", () => new HorizontalEdgeDetectionConvolutionFilter()),
+            new FilterOption("East Emboss", () => new EastEmbossConvolutionFilter())
         ];
             
         public IFilterOption SelectedFilter { get; set; }
