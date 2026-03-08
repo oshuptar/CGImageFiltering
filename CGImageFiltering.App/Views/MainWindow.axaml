@@ -7,7 +7,10 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="CGImageFiltering.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="ImageFiltering">
+        Title="ImageFiltering"
+        MinWidth="1280"
+        MinHeight="760"
+        >
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -25,8 +28,8 @@
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             
             <Border Grid.Column="0"
@@ -38,7 +41,22 @@
                 <controls:ImageArea />
             </Border>
             
-            <controls:EditorArea Grid.Column="1" ></controls:EditorArea>
+            <Grid Grid.Column="1"
+                Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                
+                <controls:EditorArea 
+                    DataContext="{Binding EditorViewModel}">
+                </controls:EditorArea>
+                <Button Grid.Row="1" 
+                    HorizontalAlignment="Center" 
+                    Content="Apply"
+                    Command="{Binding ApplySelectedFilterCommand}"
+                    Margin="0 10 0 0"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

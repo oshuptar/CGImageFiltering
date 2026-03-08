@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CGImageFiltering.App.ViewModels;
+using CGImageFiltering.App.ViewModels.Abstractions;
 
 namespace CGImageFiltering.App;
 

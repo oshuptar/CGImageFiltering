@@ -1,8 +1,8 @@
 using System;
-using CGImageFiltering.App.Models.Interfaces;
+using CGImageFiltering.App.Models.Editor.Interfaces;
 using GCImageFiltering.Core.Filters.Interfaces;
 
-namespace CGImageFiltering.App.Models;
+namespace CGImageFiltering.App.Models.Editor;
 
 public class FilterOption : IFilterOption
 {

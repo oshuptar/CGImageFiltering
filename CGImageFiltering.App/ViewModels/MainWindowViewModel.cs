@@ -1,4 +1,4 @@
-﻿    using System.Collections.ObjectModel;
+﻿    using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
     using Avalonia.Media.Imaging;
@@ -7,24 +7,22 @@
     using CGImageFiltering.App.Buffers;
     using CGImageFiltering.App.Converters;
     using CGImageFiltering.App.Converters.Interfaces;
-    using CGImageFiltering.App.Models;
-    using CGImageFiltering.App.Models.Interfaces;
+    using CGImageFiltering.App.ViewModels.Abstractions;
     using GCImageFiltering.Core.Buffers;
-    using GCImageFiltering.Core.Filters.Convolution;
-    using GCImageFiltering.Core.Filters.Function;
     using GCImageFiltering.Core.Filters.Interfaces;
 
     namespace CGImageFiltering.App.ViewModels;
 
     public class MainWindowViewModel : ViewModelBase
     {
-        private DirectBitmap? _image;
+        private DirectBitmap? OriginalImage { get; set; }
+        private DirectBitmap? FilteredImage { get; set; }
         public DirectBitmap? Image
         {
-            get => _image;
+            get => field;
             set
             {
-                _image = value;
+                field = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsSaveEnabled));
             }
@@ -42,50 +40,34 @@
                 OnPropertyChanged(nameof(PreviewButtonText));
             }
         }
-        
-        private bool _isBusy = false;
         public bool IsBusy
         {
-            get => _isBusy;
+            get => field;
             private set
             {
-                if (_isBusy == value) return;
-                _isBusy = value;
+                if (field == value) return;
+                field = value;
                 OnPropertyChanged();
                 RefreshCommands();
             }
         }
         public bool IsSaveEnabled => Image is not null;
-        private DirectBitmap? OriginalImage { get; set; }
-        private DirectBitmap? FilteredImage { get; set; }
         public Commands.RelayCommand OpenFileCommand { get; }
         public Commands.RelayCommand SaveFileCommand { get; }
         public Commands.RelayCommand ToggleImagePreviewCommand { get; }
         public Commands.RelayCommand ApplySelectedFilterCommand { get; }
-
-        public ObservableCollection<IFilterOption> Filters { get; } =
-        [
-            new FilterOption("Brightness", () => new BrightnessFilter()),
-            new FilterOption("Inversion", () => new InversionFilter()),
-            new FilterOption("Contrast Enhancement", () => new ContrastEnhancementFilter()),
-            new FilterOption("Gamma Correction", () => new GammaCorrectionFilter()),
-            new FilterOption("Blur", () => new BoxBlurConvolutionFilter()),
-            new FilterOption("Gaussian Smoothing", () => new GaussianSmoothingConvolutionFilter()),
-            new FilterOption("Sharpen", () => new SharpenConvolutionFilter()),
-            new FilterOption("Horizontal Edge Detection", () => new HorizontalEdgeDetectionConvolutionFilter()),
-            new FilterOption("East Emboss", () => new EastEmbossConvolutionFilter())
-        ];
-            
-        public IFilterOption SelectedFilter { get; set; }
+        public EditorViewModel EditorViewModel { get; } = new();
         public MainWindowViewModel()
         {
-            OpenFileCommand = new Commands.RelayCommand(OpenFileDialog, _ => true);
+            OpenFileCommand = new Commands.RelayCommand(OpenFile, _ => true);
             SaveFileCommand = new Commands.RelayCommand(SaveFile, _ => Image is not null);
             ToggleImagePreviewCommand =  new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
-            ApplySelectedFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(SelectedFilter!.FilterFactory()), CanApplyFilter);
+            ApplySelectedFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory()), CanApplyFilter);
+            EditorViewModel.PropertyChanged += OnEditorViewModelPropertyChanged;
         }
+        private void OnEditorViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCommands();
 
-        private async void OpenFileDialog(object? parameter)
+        private async void OpenFile(object? parameter)
         {
             if (parameter is not IStorageFile file) return;
             await using var stream = await file.OpenReadAsync();
@@ -100,7 +82,6 @@
         private async void SaveFile(object? parameter)
         {
             // TODO: add dialog notifying the user that there is no image loaded
-            
             if (parameter is not IStorageFile file) return;
             await using var stream = await file.OpenWriteAsync();
             FilteredImage?.Bitmap.Save(stream);
@@ -144,22 +125,22 @@
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 // In case race condition happened and the user changed the image while the filter was running
-                if (!ReferenceEquals(image, Image))
-                    return;
-                
-                image.Pixels = result;
-                image.UpdateBitmap();
-                InvalidateImage();
-                IsBusy = false;
+                try
+                {
+                    if (!ReferenceEquals(image, Image))
+                        return;
+
+                    image.Pixels = result;
+                    image.UpdateBitmap();
+                    InvalidateImage();
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             });
         }
-        
-
-        private bool CanApplyFilter(object? parameter)
-        {
-            return Image is not null && !IsOriginalDisplayed && !IsBusy;
-        }
-
+        private bool CanApplyFilter(object? parameter) => Image is not null && !IsOriginalDisplayed && !IsBusy && EditorViewModel.SelectedFilter is not null;
         private void InvalidateImage()
         {
             // Force to make sure UI redraws updated writeable bitmap. TODO: fix. think about different solution

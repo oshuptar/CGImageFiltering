@@ -1,7 +1,7 @@
 using System;
 using GCImageFiltering.Core.Filters.Interfaces;
 
-namespace CGImageFiltering.App.Models.Interfaces;
+namespace CGImageFiltering.App.Models.Editor.Interfaces;
 
 public interface IFilterOption
 {
