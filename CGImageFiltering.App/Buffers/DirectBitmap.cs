@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
@@ -9,6 +10,7 @@ namespace CGImageFiltering.App.Buffers;
 public sealed class DirectBitmap
 {
     public const int BytesPerPixel = 4;
+    public PixelFormat PixelFormat { get; }
     public int Width { get; }
     public int Height { get; }
     public int Stride { get; }
@@ -22,12 +24,20 @@ public sealed class DirectBitmap
         Dpi = dpi;
         Stride = width * BytesPerPixel;
         Pixels = new byte[Stride * height];
+        PixelFormat = pixelFormat;
         Bitmap = new WriteableBitmap(
             new PixelSize(width, height),
             Dpi,
             pixelFormat,
             AlphaFormat.Unpremul
         );
+    }
+    
+    public DirectBitmap(int width, int height, Vector dpi, PixelFormat pixelFormat, byte[] pixels)
+        : this(width, height, dpi, pixelFormat)
+    {
+        Pixels = pixels.ToArray();
+        UpdateBitmap();
     }
 
     public static DirectBitmap ToRgba(Bitmap bitmap)

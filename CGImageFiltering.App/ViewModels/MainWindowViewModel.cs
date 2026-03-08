@@ -17,6 +17,7 @@
     {
         private DirectBitmap? OriginalImage { get; set; }
         private DirectBitmap? FilteredImage { get; set; }
+
         public DirectBitmap? Image
         {
             get => field;
@@ -27,8 +28,10 @@
                 OnPropertyChanged(nameof(IsSaveEnabled));
             }
         }
+
         public string PreviewButtonText => IsOriginalDisplayed ? " Show Filtered" : "Show Original";
         private bool _isOriginalDisplayed = false;
+
         public bool IsOriginalDisplayed
         {
             get => _isOriginalDisplayed;
@@ -40,6 +43,7 @@
                 OnPropertyChanged(nameof(PreviewButtonText));
             }
         }
+
         public bool IsBusy
         {
             get => field;
@@ -51,20 +55,27 @@
                 RefreshCommands();
             }
         }
+
         public bool IsSaveEnabled => Image is not null;
         public Commands.RelayCommand OpenFileCommand { get; }
         public Commands.RelayCommand SaveFileCommand { get; }
+        public Commands.RelayCommand ResetImageCommand { get; }
         public Commands.RelayCommand ToggleImagePreviewCommand { get; }
         public Commands.RelayCommand ApplySelectedFilterCommand { get; }
         public EditorViewModel EditorViewModel { get; } = new();
+
         public MainWindowViewModel()
         {
             OpenFileCommand = new Commands.RelayCommand(OpenFile, _ => true);
             SaveFileCommand = new Commands.RelayCommand(SaveFile, _ => Image is not null);
-            ToggleImagePreviewCommand =  new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
-            ApplySelectedFilterCommand = new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory()), CanApplyFilter);
+            ResetImageCommand = new Commands.RelayCommand(ResetImage, _ => Image is not null);
+            ToggleImagePreviewCommand = new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
+            ApplySelectedFilterCommand =
+                new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory()),
+                    CanApplyFilter);
             EditorViewModel.PropertyChanged += OnEditorViewModelPropertyChanged;
         }
+
         private void OnEditorViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCommands();
 
         private async void OpenFile(object? parameter)
@@ -86,27 +97,43 @@
             await using var stream = await file.OpenWriteAsync();
             FilteredImage?.Bitmap.Save(stream);
         }
-        
+
         private void ToggleImagePreview(object? parameter)
         {
-            if(IsOriginalDisplayed)
+            if (IsOriginalDisplayed)
                 Image = FilteredImage;
-            else 
+            else
                 Image = OriginalImage;
             IsOriginalDisplayed = !IsOriginalDisplayed;
+            RefreshCommands();
+        }
+        
+        private void ResetImage(object? parameter)
+        {
+            if (OriginalImage is null)
+                return;
+            FilteredImage = new DirectBitmap(
+                OriginalImage.Width,
+                OriginalImage.Height,
+                OriginalImage.Dpi,
+                OriginalImage.PixelFormat,
+                OriginalImage.Pixels
+            );
+            Image = FilteredImage;
+            IsOriginalDisplayed = false;
             RefreshCommands();
         }
 
         private async void ApplyFilter(IFilter filter)
         {
             if (Image is null) return;
-            
-            var image = Image; 
+
+            var image = Image;
             var width = image.Width;
             var height = image.Height;
             var sourceBytes = image.Pixels.ToArray();
-            
-            IByteConverter byteConverter = new RgbaByteConverter(); 
+
+            IByteConverter byteConverter = new RgbaByteConverter();
             IsBusy = true;
             var result = await Task.Run(() =>
             {
@@ -140,7 +167,10 @@
                 }
             });
         }
-        private bool CanApplyFilter(object? parameter) => Image is not null && !IsOriginalDisplayed && !IsBusy && EditorViewModel.SelectedFilter is not null;
+
+        private bool CanApplyFilter(object? parameter) => Image is not null && !IsOriginalDisplayed && !IsBusy &&
+                                                          EditorViewModel.SelectedFilter is not null;
+
         private void InvalidateImage()
         {
             // Force to make sure UI redraws updated writeable bitmap. TODO: fix. think about different solution
@@ -154,6 +184,7 @@
         {
             SaveFileCommand.RaiseCanExecuteChanged();
             ToggleImagePreviewCommand.RaiseCanExecuteChanged();
+            ResetImageCommand.RaiseCanExecuteChanged();
             ApplySelectedFilterCommand.RaiseCanExecuteChanged();
         }
     }

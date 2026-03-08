@@ -24,9 +24,36 @@
                     <Canvas Width="256"
                             Height="256"
                             Background="White">
-                        <Polyline Points="{Binding GraphPoints}"
+                        <Polyline Points="{Binding PolylinePoints}"
                                   Stroke="Black"
                                   StrokeThickness="1"/>
+
+                        <ItemsControl Width="256"
+                                      Height="256"
+                                      Canvas.Left="0"
+                                      Canvas.Top="0"
+                                      ItemsSource="{Binding GraphPoints}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Ellipse Width="6"
+                                             Height="6"
+                                             Fill="White"
+                                             Stroke="Blue"
+                                             StrokeThickness="2">
+                                        <Ellipse.RenderTransform>
+                                            <TranslateTransform X="{Binding EllipseX}"
+                                                                Y="{Binding EllipseY}" />
+                                        </Ellipse.RenderTransform>
+                                    </Ellipse>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
                     </Canvas>
                 </Border>
                 

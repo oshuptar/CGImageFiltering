@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using CGImageFiltering.App.Models.Editor;
 using CGImageFiltering.App.Models.Editor.Interfaces;
@@ -32,6 +33,6 @@ public class EditorViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-
-    public ObservableCollection<Point> GraphPoints { get; set; } = [new Point(0, 255), new Point(255, 0)];
+    public ObservableCollection<FilterPoint> GraphPoints { get; set; } = [new FilterPoint(0, 0), new FilterPoint(128,128), new FilterPoint(255, 255)]; // this array must be sorted
+    public Points PolylinePoints => new Points(GraphPoints.Select(point => new Point(point.X, 255 - point.Y)).ToList());
 }
