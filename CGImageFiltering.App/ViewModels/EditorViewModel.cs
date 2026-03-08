@@ -36,6 +36,7 @@ public class EditorViewModel : ViewModelBase
         {
             field = value;
             OnPropertyChanged();
+            EditGraphCommand.RaiseCanExecuteChanged();
         }
     }
     private EditorMode _currentMode = EditorMode.None;
@@ -64,14 +65,13 @@ public class EditorViewModel : ViewModelBase
     public Commands.RelayCommand SaveGraphCommand { get; }
     public ObservableCollection<FilterPoint> GraphPoints { get; set; } = new(); // this array must be sorted
     public Points PolylinePoints => new Points(GraphPoints.Select(point => new Point(point.ScreenX, point.ScreenY)).ToList());
-
     public EditorViewModel()
     {
         SetAddModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Add), _ => true);
         SetDragModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Drag), _ => true);
         SetRemoveModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Remove), _ => true);
-        NewGraphCommand = new Commands.RelayCommand(_ => ResetGraph(), _ => true);
-        EditGraphCommand = new Commands.RelayCommand(_ => ResetGraph(), _ => true);
+        NewGraphCommand = new Commands.RelayCommand(_ => NewGraph(), _ => true);
+        EditGraphCommand = new Commands.RelayCommand(_ => EditFilter(), _ => SelectedFilter is not null);
         SaveGraphCommand = new Commands.RelayCommand(_ => SaveFilter(), _ => IsFilterSet());
         GraphPoints.CollectionChanged += OnGraphPointsCollectionChanged;
     }
@@ -200,6 +200,13 @@ public class EditorViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(PolylinePoints));
     }
+
+    private void NewGraph()
+    {
+        FilterName = string.Empty;
+        IsFilterNameEditable = true;
+        ResetGraph();
+    }
     
     private void ResetGraph()
     {
@@ -211,38 +218,35 @@ public class EditorViewModel : ViewModelBase
 
     private void SaveFilter()
     {
-        byte[] table = BuildFunctionTable();
         if (string.IsNullOrWhiteSpace(FilterName))
             return;
-       if (!Filters.Select(x => x.Name).ToList().Contains(FilterName))
-       {
-           Filters.Add(new FilterOption(FilterName, () => new FunctionalFilter(table)));
-           FilterName = string.Empty;
-           IsFilterNameEditable = true;
-           ResetGraph();
-       }
+        
+        var savedPoints = GraphPoints
+            .Select(point => new System.Drawing.Point(point.X, point.Y))
+            .ToList();
+        Func<IFilter> factory = () => new FunctionalFilter(savedPoints.ToList());
+        var existing = Filters.FirstOrDefault(x => x.Name == FilterName);
+        if (existing is null)
+            Filters.Add(new FilterOption(FilterName, factory));
+        else
+            existing.FilterFactory = factory;
+       FilterName = string.Empty;
+       IsFilterNameEditable = true;
+       GraphPoints.Clear();
     }
-    
-    public byte[] BuildFunctionTable()
+
+    private void EditFilter()
     {
-        var table = new byte[256];
-        for (int segment= 0; segment < GraphPoints.Count - 1; segment++)
-        {
-            var left = GraphPoints[segment];
-            var right = GraphPoints[segment + 1];
-            int x1 = left.X;
-            int y1 = left.Y;
-            int x2 = right.X;
-            int y2 = right.Y;
-            
-            for (int x = x1; x <= x2; x++)
-            {
-                double alpha = (double)(y2 - y1) / (x2 - x1);
-                double y = y1 + alpha * (x - x1);
-                table[x] = (byte)Math.Clamp((int)Math.Round(y), 0, 255);
-            }
-        }
-        return table;
+        IFilter? filter = SelectedFilter?.FilterFactory.Invoke();
+        if (filter is not IGraphRepresentable graphRepresentable)
+            return;
+        
+        IsFilterNameEditable = false;
+        FilterName = SelectedFilter?.Name ?? string.Empty;
+        
+        var points = graphRepresentable.BuildGraphPoints().ToList();
+        GraphPoints.Clear();
+        foreach (var point in points)
+            GraphPoints.Add(new FilterPoint(point.X, point.Y));
     }
-    
 }

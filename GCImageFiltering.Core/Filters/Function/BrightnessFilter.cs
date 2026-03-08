@@ -1,9 +1,10 @@
+using System.Drawing;
 using GCImageFiltering.Core.Buffers;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
 
-public class BrightnessFilter : IFilter
+public class BrightnessFilter : IFilter, IGraphRepresentable
 {
     public int Delta { get; set; } 
     
@@ -27,6 +28,15 @@ public class BrightnessFilter : IFilter
         return buffer;
     }
     private static byte ClampToByte(int value) => (byte)Math.Clamp(value, 0, 255);
-      
-    
+
+
+    public IEnumerable<Point> BuildGraphPoints()
+    {
+        var list = new List<Point>();
+        list.Add(new Point(0, Delta));
+        list.Add(new Point(255 - Delta, 255));
+        list.Add(new Point(255, 255));
+        list = list.OrderBy(point => point.X).ToList();
+        return list;
+    }
 }

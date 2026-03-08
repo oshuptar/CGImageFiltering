@@ -1,17 +1,17 @@
+using System.Drawing;
 using GCImageFiltering.Core.Buffers;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
 
-public class FunctionalFilter : IFilter
+public class FunctionalFilter : IFilter, IGraphRepresentable
 {
     private byte[] FunctionTable { get; }
-    public FunctionalFilter(byte[] functionTable)
-    {
-        if (functionTable.Length != 256)
-            throw new ArgumentException("Function table must contain exactly 256 elements.");
-        
-        FunctionTable = functionTable;
+    private IReadOnlyList<Point> _graphPoints;
+    public FunctionalFilter(IReadOnlyList<Point> graphPoints)
+    { 
+        _graphPoints = graphPoints;
+        FunctionTable = BuildFunctionTable();
     }
     public PixelBuffer Apply(PixelBuffer buffer)
     {
@@ -27,4 +27,27 @@ public class FunctionalFilter : IFilter
         }
         return buffer;
     }
+    
+    public byte[] BuildFunctionTable()
+    {
+        var table = new byte[256];
+        for (int segment= 0; segment < _graphPoints.Count - 1; segment++)
+        {
+            var left = _graphPoints[segment];
+            var right = _graphPoints[segment + 1];
+            int x1 = left.X;
+            int y1 = left.Y;
+            int x2 = right.X;
+            int y2 = right.Y;
+            
+            for (int x = x1; x <= x2; x++)
+            {
+                double alpha = (double)(y2 - y1) / (x2 - x1);
+                double y = y1 + alpha * (x - x1);
+                table[x] = (byte)Math.Clamp((int)Math.Round(y), 0, 255);
+            }
+        }
+        return table;
+    }
+    public IEnumerable<Point> BuildGraphPoints() => _graphPoints;
 }

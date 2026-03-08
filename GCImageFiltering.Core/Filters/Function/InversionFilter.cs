@@ -1,9 +1,10 @@
+using System.Drawing;
 using GCImageFiltering.Core.Buffers;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
 
-public class InversionFilter : IFilter
+public class InversionFilter : IFilter, IGraphRepresentable
 {
     public PixelBuffer Apply(PixelBuffer buffer)
     {
@@ -18,5 +19,14 @@ public class InversionFilter : IFilter
             }
         }
         return buffer;
+    }
+
+    public IEnumerable<Point> BuildGraphPoints()
+    {
+        var list = new List<Point>();
+        list.Add(new Point(0, 255));
+        list.Add(new Point(255, 0));
+        list = list.OrderBy(point => point.X).ToList();
+        return list;
     }
 }
