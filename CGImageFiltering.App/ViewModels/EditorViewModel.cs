@@ -10,6 +10,7 @@ using CGImageFiltering.App.Models.Editor.Interfaces;
 using CGImageFiltering.App.ViewModels.Abstractions;
 using GCImageFiltering.Core.Filters.Convolution;
 using GCImageFiltering.Core.Filters.Function;
+using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace CGImageFiltering.App.ViewModels;
 
@@ -58,11 +59,10 @@ public class EditorViewModel : ViewModelBase
     public Commands.RelayCommand SetAddModeCommand { get; }
     public Commands.RelayCommand SetDragModeCommand { get; }
     public Commands.RelayCommand SetRemoveModeCommand { get; }
-    
-    public ObservableCollection<FilterPoint> GraphPoints { get; set; } = [
-        new FilterPoint(0, 0),
-        new FilterPoint(255, 255)
-    ]; // this array must be sorted
+    public Commands.RelayCommand NewGraphCommand { get; }
+    public Commands.RelayCommand EditGraphCommand { get; }
+    public Commands.RelayCommand SaveGraphCommand { get; }
+    public ObservableCollection<FilterPoint> GraphPoints { get; set; } = new(); // this array must be sorted
     public Points PolylinePoints => new Points(GraphPoints.Select(point => new Point(point.ScreenX, point.ScreenY)).ToList());
 
     public EditorViewModel()
@@ -70,10 +70,37 @@ public class EditorViewModel : ViewModelBase
         SetAddModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Add), _ => true);
         SetDragModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Drag), _ => true);
         SetRemoveModeCommand = new Commands.RelayCommand(_ => ChangeEditorMode(EditorMode.Remove), _ => true);
+        NewGraphCommand = new Commands.RelayCommand(_ => ResetGraph(), _ => true);
+        EditGraphCommand = new Commands.RelayCommand(_ => ResetGraph(), _ => true);
+        SaveGraphCommand = new Commands.RelayCommand(_ => SaveFilter(), _ => IsFilterSet());
         GraphPoints.CollectionChanged += OnGraphPointsCollectionChanged;
-        foreach (var point in GraphPoints)
-            point.PropertyChanged += OnGraphPointPropertyChanged;
     }
+    
+    private string _filterName = string.Empty;
+    public string FilterName
+    {
+        get => _filterName;
+        set
+        {
+            if (_filterName == value) return;
+            _filterName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _isFilterNameEditable = true;
+    public bool IsFilterNameEditable
+    {
+        get => _isFilterNameEditable;
+        set
+        {
+            if (_isFilterNameEditable == value) return;
+            _isFilterNameEditable = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool IsFilterSet() => GraphPoints.Count >= 2;
 
     private void ChangeEditorMode(EditorMode mode)
     {
@@ -85,6 +112,9 @@ public class EditorViewModel : ViewModelBase
 
     public bool TryAddPoint(Point position)
     {
+        if(!IsFilterSet())
+            return false;
+        
         int x = (int)position.X; int y = (int)position.Y;
         if (CurrentMode != EditorMode.Add)
             return false;
@@ -114,7 +144,7 @@ public class EditorViewModel : ViewModelBase
     public bool TryRemovePoint(FilterPoint point)
     {
         int index = GraphPoints.IndexOf(point);
-        if (index == 0 || index == GraphPoints.Count - 1)
+        if (index <= 0 || index == GraphPoints.Count - 1)
             return false;
 
         return GraphPoints.Remove(point);
@@ -163,10 +193,56 @@ public class EditorViewModel : ViewModelBase
                 point.PropertyChanged -= OnGraphPointPropertyChanged;
         }
         OnPropertyChanged(nameof(PolylinePoints));
+        SaveGraphCommand.RaiseCanExecuteChanged();
     }
 
     private void OnGraphPointPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         OnPropertyChanged(nameof(PolylinePoints));
     }
+    
+    private void ResetGraph()
+    {
+        GraphPoints.Clear();
+        GraphPoints.Add(new FilterPoint(0, 0));
+        GraphPoints.Add(new FilterPoint(255, 255));
+       OnPropertyChanged(nameof(GraphPoints));
+    }
+
+    private void SaveFilter()
+    {
+        byte[] table = BuildFunctionTable();
+        if (string.IsNullOrWhiteSpace(FilterName))
+            return;
+       if (!Filters.Select(x => x.Name).ToList().Contains(FilterName))
+       {
+           Filters.Add(new FilterOption(FilterName, () => new FunctionalFilter(table)));
+           FilterName = string.Empty;
+           IsFilterNameEditable = true;
+           ResetGraph();
+       }
+    }
+    
+    public byte[] BuildFunctionTable()
+    {
+        var table = new byte[256];
+        for (int segment= 0; segment < GraphPoints.Count - 1; segment++)
+        {
+            var left = GraphPoints[segment];
+            var right = GraphPoints[segment + 1];
+            int x1 = left.X;
+            int y1 = left.Y;
+            int x2 = right.X;
+            int y2 = right.Y;
+            
+            for (int x = x1; x <= x2; x++)
+            {
+                double alpha = (double)(y2 - y1) / (x2 - x1);
+                double y = y1 + alpha * (x - x1);
+                table[x] = (byte)Math.Clamp((int)Math.Round(y), 0, 255);
+            }
+        }
+        return table;
+    }
+    
 }
