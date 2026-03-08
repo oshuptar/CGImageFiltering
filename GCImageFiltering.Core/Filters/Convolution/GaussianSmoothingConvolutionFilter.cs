@@ -4,35 +4,33 @@ using GCImageFiltering.Core.Filters.Convolution.Abstractions;
 
 namespace GCImageFiltering.Core.Filters.Convolution;
 
-public class BoxBlurConvolutionFilter : ConvolutionFilterBase
+public class GaussianSmoothingConvolutionFilter : ConvolutionFilterBase
 {
-    public BoxBlurConvolutionFilter(int kernelSize = 3) : base(kernelSize)
+    public GaussianSmoothingConvolutionFilter(int kernelSize = 3) : base(kernelSize)
     {
-        
     }
-
+    
     public override PixelBuffer Apply(PixelBuffer readOnlyBuffer)
     {
-        (double[] kernelMatrix, double divisor) = GetKernelMatrix();
+        int midpoint = KernelSize / 2;
         PixelBuffer outputBuffer = new PixelBuffer(readOnlyBuffer.Width, readOnlyBuffer.Height, readOnlyBuffer.Pixels.DeepCopy());
+        (double[] kernel, double divisor) = GetKernelMatrix();
         for (int y = 0; y < readOnlyBuffer.Height; y++)
         {
             for (int x = 0; x < readOnlyBuffer.Width; x++)
             {
-                int midpoint = KernelSize / 2;
                 int i = y * readOnlyBuffer.Width + x;
-                RgbaPixel output = MultiplyConvolution(readOnlyBuffer, kernelMatrix, midpoint, x, y, divisor);
+                RgbaPixel output = MultiplyConvolution(readOnlyBuffer, kernel, midpoint, x, y, divisor);
                 outputBuffer.Pixels[i] = output;
             }
         }
-        
         return outputBuffer;
     }
 
     public override (double[] kernel, double divisor) GetKernelMatrix()
     {
-        double[] kernel = new double[KernelSize * KernelSize];
-        Array.Fill(kernel, 1.0);
+        // Hardcoded for now
+        double[] kernel = [0, 1, 0, 1, 4, 1, 0, 1, 0];
         double divisor = kernel.ToList().Sum();
         return (kernel, divisor);
     }

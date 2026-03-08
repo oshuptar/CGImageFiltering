@@ -69,7 +69,9 @@
             new FilterOption("Inversion", () => new InversionFilter()),
             new FilterOption("Contrast Enhancement", () => new ContrastEnhancementFilter()),
             new FilterOption("Gamma Correction", () => new GammaCorrectionFilter()),
-            new FilterOption("Blur", () => new BoxBlurConvolutionFilter())
+            new FilterOption("Blur", () => new BoxBlurConvolutionFilter()),
+            new FilterOption("Gaussian Smoothing", () => new GaussianSmoothingConvolutionFilter()),
+            new FilterOption("Sharpen", () => new SharpenConvolutionFilter())
         ];
             
         public IFilterOption SelectedFilter { get; set; }
