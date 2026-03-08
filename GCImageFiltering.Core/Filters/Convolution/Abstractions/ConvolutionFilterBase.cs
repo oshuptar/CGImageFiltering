@@ -15,7 +15,7 @@ public abstract class ConvolutionFilterBase : IFilter
     public abstract PixelBuffer Apply(PixelBuffer buffer);
     
     // matrix should be filled by row
-    public virtual RgbaPixel MultiplyConvolution(PixelBuffer pixelBuffer, double[] matrix, int midpoint, int x, int y, double divisor)
+    public virtual RgbaPixel MultiplyConvolution(PixelBuffer pixelBuffer, double[] matrix, int midpoint, int x, int y, double divisor = 1, int shift = 0)
     {
         if(matrix.Length != KernelSize * KernelSize)
             throw new ArgumentException("Matrix size does not match kernel size");
@@ -37,10 +37,11 @@ public abstract class ConvolutionFilterBase : IFilter
                 sumB += matrix[matrixIndex] * pixelBuffer.Pixels[pixelIndex].B;
             }
         }
+        
         return new RgbaPixel(
-            (byte)Math.Clamp(Math.Round(sumR/divisor), 0, 255),
-            (byte)Math.Clamp(Math.Round(sumG/divisor), 0, 255),
-            (byte)Math.Clamp(Math.Round(sumB / divisor), 0, 255),
+            (byte)Math.Clamp(Math.Round(sumR/divisor) + shift, 0, 255),
+            (byte)Math.Clamp(Math.Round(sumG/divisor) + shift, 0, 255),
+            (byte)Math.Clamp(Math.Round(sumB/divisor) + shift, 0, 255),
             pixelBuffer.Pixels[y * pixelBuffer.Width + x].A);
     }
     

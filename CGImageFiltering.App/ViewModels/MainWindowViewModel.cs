@@ -71,7 +71,8 @@
             new FilterOption("Gamma Correction", () => new GammaCorrectionFilter()),
             new FilterOption("Blur", () => new BoxBlurConvolutionFilter()),
             new FilterOption("Gaussian Smoothing", () => new GaussianSmoothingConvolutionFilter()),
-            new FilterOption("Sharpen", () => new SharpenConvolutionFilter())
+            new FilterOption("Sharpen", () => new SharpenConvolutionFilter()),
+            new FilterOption("Horizontal Edge Detection", () => new HorizontalEdgeDetectionConvolutionFilter())
         ];
             
         public IFilterOption SelectedFilter { get; set; }
