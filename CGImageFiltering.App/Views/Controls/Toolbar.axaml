@@ -12,5 +12,6 @@
         <MenuItem Header="Save" Click="SaveClickHandler" IsEnabled="{Binding IsSaveEnabled}"/>
         <MenuItem Header="Reset" Command="{Binding ResetImageCommand}"/>
         <MenuItem Header="{Binding PreviewButtonText}" Command="{Binding ToggleImagePreviewCommand}" />
+        <MenuItem Header="To Grayscale" Command="{Binding ConvertToGrayscaleCommand}"/>
     </Menu>
 </UserControl>

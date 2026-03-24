@@ -9,7 +9,6 @@ namespace CGImageFiltering.App.Buffers;
 
 public sealed class DirectBitmap
 {
-    public const int BytesPerPixel = 4;
     public PixelFormat PixelFormat { get; }
     public int Width { get; }
     public int Height { get; }
@@ -19,10 +18,11 @@ public sealed class DirectBitmap
     public WriteableBitmap Bitmap { get; }
     private DirectBitmap(int width, int height, Vector dpi, PixelFormat pixelFormat)
     {
+        int bytesPerPixel = pixelFormat.BitsPerPixel / 8;
         Width = width;
         Height = height;
         Dpi = dpi;
-        Stride = width * BytesPerPixel;
+        Stride = width * bytesPerPixel;
         Pixels = new byte[Stride * height];
         PixelFormat = pixelFormat;
         Bitmap = new WriteableBitmap(
