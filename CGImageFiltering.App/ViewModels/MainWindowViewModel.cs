@@ -54,6 +54,7 @@
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PreviewButtonText));
                 OnPropertyChanged(nameof(Image));
+                RefreshCommands();
             }
         }
 
@@ -110,7 +111,6 @@
             Bitmap bitmap = new Bitmap(stream);
             OriginalImage = DirectBitmap.ToRgba(bitmap);
             FilteredImage = DirectBitmap.ToRgba(bitmap);
-            //Image = FilteredImage;
             IsOriginalDisplayed = false;
             RefreshCommands();
         }
@@ -122,17 +122,7 @@
             await using var stream = await file.OpenWriteAsync();
             FilteredImage?.Bitmap.Save(stream);
         }
-
-        private void ToggleImagePreview(object? parameter)
-        {
-            // if (IsOriginalDisplayed)
-            //     Image = FilteredImage;
-            // else
-            //     Image = OriginalImage;
-            IsOriginalDisplayed = !IsOriginalDisplayed;
-            RefreshCommands();
-        }
-        
+        private void ToggleImagePreview(object? parameter) => IsOriginalDisplayed = !IsOriginalDisplayed;
         private void ResetImage(object? parameter)
         {
             if (OriginalImage is null)
@@ -144,7 +134,6 @@
                 OriginalImage.PixelFormat,
                 OriginalImage.Pixels
             );
-            //Image = FilteredImage;
             IsOriginalDisplayed = false;
             RefreshCommands();
         }
