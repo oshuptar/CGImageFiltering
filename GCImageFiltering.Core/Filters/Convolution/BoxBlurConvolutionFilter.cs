@@ -1,5 +1,3 @@
-using GCImageFiltering.Core.Buffers;
-using GCImageFiltering.Core.Buffers.Extensions;
 using GCImageFiltering.Core.Filters.Convolution.Abstractions;
 
 namespace GCImageFiltering.Core.Filters.Convolution;
@@ -10,25 +8,7 @@ public class BoxBlurConvolutionFilter : ConvolutionFilterBase
     {
         
     }
-
-    public override PixelBuffer Apply(PixelBuffer readOnlyBuffer)
-    {
-        (double[] kernelMatrix, double divisor) = GetKernelMatrix();
-        PixelBuffer outputBuffer = new PixelBuffer(readOnlyBuffer.Width, readOnlyBuffer.Height, readOnlyBuffer.Pixels.DeepCopy());
-        for (int y = 0; y < readOnlyBuffer.Height; y++)
-        {
-            for (int x = 0; x < readOnlyBuffer.Width; x++)
-            {
-                int midpoint = KernelSize / 2;
-                int i = y * readOnlyBuffer.Width + x;
-                RgbaPixel output = MultiplyConvolution(readOnlyBuffer, kernelMatrix, midpoint, x, y, divisor);
-                outputBuffer.Pixels[i] = output;
-            }
-        }
-        
-        return outputBuffer;
-    }
-
+    
     public override (double[] kernel, double divisor) GetKernelMatrix()
     {
         double[] kernel = new double[KernelSize * KernelSize];

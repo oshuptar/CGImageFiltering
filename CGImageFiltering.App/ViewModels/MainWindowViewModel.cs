@@ -5,10 +5,9 @@
     using Avalonia.Platform.Storage;
     using Avalonia.Threading;
     using CGImageFiltering.App.Buffers;
-    using CGImageFiltering.App.Converters;
-    using CGImageFiltering.App.Converters.Interfaces;
     using CGImageFiltering.App.ViewModels.Abstractions;
     using GCImageFiltering.Core.Buffers;
+    using GCImageFiltering.Core.Buffers.Enums;
     using GCImageFiltering.Core.Filters.Interfaces;
 
     namespace CGImageFiltering.App.ViewModels;
@@ -133,21 +132,19 @@
             var height = image.Height;
             var sourceBytes = image.Pixels.ToArray();
 
-            IByteConverter byteConverter = new RgbaByteConverter();
             IsBusy = true;
             var result = await Task.Run(() =>
             {
                 var pixelBuffer = new PixelBuffer(
                     width,
-                    height,
-                    byteConverter.ConvertToPixel(sourceBytes, width, height));
+                    height, 
+                    sourceBytes,
+                    image.Stride,
+                    ColorFormat.Rgba);
 
                 var filteredBuffer = filter.Apply(pixelBuffer);
 
-                return byteConverter.ConvertToByte(
-                    filteredBuffer.Pixels,
-                    filteredBuffer.Width,
-                    filteredBuffer.Height);
+                return filteredBuffer.Pixels;
             });
             await Dispatcher.UIThread.InvokeAsync(() =>
             {

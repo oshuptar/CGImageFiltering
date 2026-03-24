@@ -1,5 +1,6 @@
 using System.Drawing;
 using GCImageFiltering.Core.Buffers;
+using GCImageFiltering.Core.Buffers.Enums;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
@@ -17,14 +18,14 @@ public class ContrastEnhancementFilter : IFilter, IGraphRepresentable
     // linear contrast adjustment
     public PixelBuffer Apply(PixelBuffer buffer)
     {
+        int channels = buffer.ColorFormat == ColorFormat.Rgba ? buffer.BytesPerPixel - 1 : buffer.BytesPerPixel;
         for (int y = 0; y < buffer.Height; y++)
         {
             for (int x = 0; x < buffer.Width; x++)
             {
-                int i = y * buffer.Width + x;
-                buffer.Pixels[i].R = LinearContrastAdjustment(buffer.Pixels[i].R, Contrast, Threshold);
-                buffer.Pixels[i].G = LinearContrastAdjustment(buffer.Pixels[i].G, Contrast, Threshold);
-                buffer.Pixels[i].B = LinearContrastAdjustment(buffer.Pixels[i].B, Contrast, Threshold);
+                int i = y * buffer.Stride + x * buffer.BytesPerPixel;
+                for (int k = 0; k < channels; k++)
+                    buffer.Pixels[i + k] = LinearContrastAdjustment(buffer.Pixels[i + k], Contrast, Threshold);;
             }
         }
         return buffer;

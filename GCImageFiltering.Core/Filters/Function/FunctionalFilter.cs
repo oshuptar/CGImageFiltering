@@ -1,5 +1,6 @@
 using System.Drawing;
 using GCImageFiltering.Core.Buffers;
+using GCImageFiltering.Core.Buffers.Enums;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
@@ -15,14 +16,14 @@ public class FunctionalFilter : IFilter, IGraphRepresentable
     }
     public PixelBuffer Apply(PixelBuffer buffer)
     {
+        int channels = buffer.ColorFormat == ColorFormat.Rgba ? buffer.BytesPerPixel - 1 : buffer.BytesPerPixel;
         for (int y = 0; y < buffer.Height; y++)
         {
             for (int x = 0; x < buffer.Width; x++)
             {
-                int i = y * buffer.Width + x;
-                buffer.Pixels[i].R = FunctionTable[buffer.Pixels[i].R];
-                buffer.Pixels[i].G = FunctionTable[buffer.Pixels[i].G];
-                buffer.Pixels[i].B = FunctionTable[buffer.Pixels[i].B];
+                int i = y * buffer.Stride + x * buffer.BytesPerPixel;
+                for (int k = 0; k < channels; k++)
+                    buffer.Pixels[i + k] = FunctionTable[buffer.Pixels[i + k]];
             }
         }
         return buffer;

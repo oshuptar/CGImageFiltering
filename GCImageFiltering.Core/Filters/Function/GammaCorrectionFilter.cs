@@ -1,4 +1,5 @@
 using GCImageFiltering.Core.Buffers;
+using GCImageFiltering.Core.Buffers.Enums;
 using GCImageFiltering.Core.Filters.Interfaces;
 
 namespace GCImageFiltering.Core.Filters.Function;
@@ -12,14 +13,14 @@ public class GammaCorrectionFilter : IFilter
     }
     public PixelBuffer Apply(PixelBuffer buffer)
     {
+        int channels = buffer.ColorFormat == ColorFormat.Rgba ? buffer.BytesPerPixel - 1 : buffer.BytesPerPixel;
         for (int y = 0; y < buffer.Height; y++)
         {
             for (int x = 0; x < buffer.Width; x++)
             {
-                int i = y * buffer.Width + x;
-                buffer.Pixels[i].R = GammaCorrection(buffer.Pixels[i].R, Gamma);
-                buffer.Pixels[i].G = GammaCorrection(buffer.Pixels[i].G, Gamma);
-                buffer.Pixels[i].B = GammaCorrection(buffer.Pixels[i].B, Gamma);
+                int i = y * buffer.Stride + x * buffer.BytesPerPixel;
+                for (int k = 0; k < channels; k++)
+                    buffer.Pixels[i + k] = GammaCorrection(buffer.Pixels[i + k], Gamma);
             }
         }
         return buffer;
