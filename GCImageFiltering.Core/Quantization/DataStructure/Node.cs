@@ -7,5 +7,5 @@ public class Node
     public int SumG { get; set; }
     public int SumB { get; set; }
     public int Count { get; set; }
-    public List<Node> Children { get; set; } = new();
+    public Node?[] Children { get; set; } = new Node?[8];
 }

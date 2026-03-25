@@ -11,7 +11,6 @@
     using GCImageFiltering.Core.Buffers.Enums;
     using GCImageFiltering.Core.Converters;
     using GCImageFiltering.Core.Converters.Abstractions;
-    using GCImageFiltering.Core.Filters.Dithering;
     using GCImageFiltering.Core.Filters.Interfaces;
 
     namespace CGImageFiltering.App.ViewModels;
@@ -55,6 +54,7 @@
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PreviewButtonText));
                 OnPropertyChanged(nameof(Image));
+                OnPropertyChanged(nameof(IsSaveEnabled));
                 RefreshCommands();
             }
         }
@@ -67,11 +67,14 @@
                 if (field == value) return;
                 field = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSaveEnabled));
+                OnPropertyChanged(nameof(IsOpenEnabled));
                 RefreshCommands();
             }
         }
 
-        public bool IsSaveEnabled => Image is not null;
+        public bool IsSaveEnabled => CanModifyImage(null);
+        public bool IsOpenEnabled => !IsBusy;
         public Commands.RelayCommand OpenFileCommand { get; }
         public Commands.RelayCommand SaveFileCommand { get; }
         public Commands.RelayCommand ResetImageCommand { get; }
@@ -83,8 +86,8 @@
         public MainWindowViewModel()
         {
             OpenFileCommand = new Commands.RelayCommand(OpenFile, _ => !IsBusy);
-            SaveFileCommand = new Commands.RelayCommand(SaveFile, _ => Image is not null);
-            ResetImageCommand = new Commands.RelayCommand(ResetImage, _ => Image is not null);
+            SaveFileCommand = new Commands.RelayCommand(SaveFile, CanModifyImage);
+            ResetImageCommand = new Commands.RelayCommand(ResetImage, CanModifyImage);
             ToggleImagePreviewCommand = new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
             ApplySelectedFilterCommand =
                 new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory(EditorViewModel.SelectedFilter?.Parameter)),
@@ -94,23 +97,6 @@
         }
 
         private void OnEditorViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCommands();
-
-        private void RandomDithering(object? parameter)
-        {
-            if (Image is null) return;
-            
-            var pixelBuffer = new PixelBuffer(
-                Image.Width,
-                Image.Height,  
-                Image.Pixels.ToArray(),
-                Image.Stride,
-                Image.PixelFormat == PixelFormats.Gray8 ? ColorFormat.Grayscale : ColorFormat.Rgba);
-
-            var ditheredBuffer = new RandomDithering().Apply(pixelBuffer);
-            Image.Pixels = ditheredBuffer.Pixels;
-            Image.UpdateBitmap();
-            InvalidateImage();
-        }
 
         private void ConvertToGrayscale(object? parameter)
         {
@@ -211,6 +197,7 @@
 
         private void RefreshCommands()
         {
+            OpenFileCommand.RaiseCanExecuteChanged();
             SaveFileCommand.RaiseCanExecuteChanged();
             ToggleImagePreviewCommand.RaiseCanExecuteChanged();
             ResetImageCommand.RaiseCanExecuteChanged();

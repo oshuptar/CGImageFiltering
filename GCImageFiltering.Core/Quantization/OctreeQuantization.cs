@@ -13,13 +13,14 @@ public class OctreeQuantization : IFilter
     
     public OctreeQuantization(int maxColors = 256)
     {
+        if (maxColors < 1)
+            throw new ArgumentException("MaxColors must be greater than 0", nameof(maxColors));
         MaxColors = maxColors;
     }
     
     public PixelBuffer Apply(PixelBuffer buffer)
     {
         if (buffer.ColorFormat != ColorFormat.Rgba) return buffer;
-        int channels = buffer.BytesPerPixel - 1;
         Octree = new Octree(MaxColors);
         for (int y = 0; y < buffer.Height; y++)
         {
@@ -50,6 +51,7 @@ public class OctreeQuantization : IFilter
                 buffer.Pixels[index + 3] = resultingPixel.A;
             }
         }
+        Console.WriteLine($"Reduced to {Octree.LeafCount} colors");
         return buffer;
     }
 }

@@ -8,7 +8,7 @@
              x:Class="CGImageFiltering.App.Views.Controls.Toolbar">
     
     <Menu>
-        <MenuItem Header="Open" Click="OpenClickHandler"/>
+        <MenuItem Header="Open" Click="OpenClickHandler" IsEnabled="{Binding IsOpenEnabled}"/>
         <MenuItem Header="Save" Click="SaveClickHandler" IsEnabled="{Binding IsSaveEnabled}"/>
         <MenuItem Header="Reset" Command="{Binding ResetImageCommand}"/>
         <MenuItem Header="{Binding PreviewButtonText}" Command="{Binding ToggleImagePreviewCommand}" />
