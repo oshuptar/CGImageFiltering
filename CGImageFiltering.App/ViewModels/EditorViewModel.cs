@@ -9,6 +9,7 @@ using CGImageFiltering.App.Models.Editor.Enums;
 using CGImageFiltering.App.Models.Editor.Interfaces;
 using CGImageFiltering.App.ViewModels.Abstractions;
 using GCImageFiltering.Core.Filters.Convolution;
+using GCImageFiltering.Core.Filters.Dithering;
 using GCImageFiltering.Core.Filters.Function;
 using GCImageFiltering.Core.Filters.Interfaces;
 
@@ -18,15 +19,16 @@ public class EditorViewModel : ViewModelBase
 {
     public ObservableCollection<IFilterOption> Filters { get; } =
     [
-        new FilterOption("Brightness", () => new BrightnessFilter()),
-        new FilterOption("Inversion", () => new InversionFilter()),
-        new FilterOption("Contrast Enhancement", () => new ContrastEnhancementFilter()),
-        new FilterOption("Gamma Correction", () => new GammaCorrectionFilter()),
-        new FilterOption("Blur", () => new BoxBlurConvolutionFilter()),
-        new FilterOption("Gaussian Smoothing", () => new GaussianSmoothingConvolutionFilter()),
-        new FilterOption("Sharpen", () => new SharpenConvolutionFilter()),
-        new FilterOption("Horizontal Edge Detection", () => new HorizontalEdgeDetectionConvolutionFilter()),
-        new FilterOption("East Emboss", () => new EastEmbossConvolutionFilter())
+        new FilterOption("Brightness", 20, "Delta" , min: 1, max: 255, increment: 1, (parameter) => parameter == null ? new BrightnessFilter() : new BrightnessFilter((int)parameter.Value)),
+        new FilterOption("Inversion",_ => new InversionFilter()),
+        new FilterOption("Contrast Enhancement", 1.2, "Contrast", min: 1, max: 2, increment: 0.1, (parameter) => parameter == null ? new ContrastEnhancementFilter() : new ContrastEnhancementFilter(parameter.Value)),
+        new FilterOption("Gamma Correction", _ => new GammaCorrectionFilter()),
+        new FilterOption("Blur", _ => new BoxBlurConvolutionFilter()),
+        new FilterOption("Gaussian Smoothing", _ => new GaussianSmoothingConvolutionFilter()),
+        new FilterOption("Sharpen", _ => new SharpenConvolutionFilter()),
+        new FilterOption("Horizontal Edge Detection", _ => new HorizontalEdgeDetectionConvolutionFilter()),
+        new FilterOption("East Emboss", _ => new EastEmbossConvolutionFilter()),
+        new FilterOption("Random Dithering", 4, "Color Levels", min: 2, max: 256, increment: 1,(parameter) => parameter == null ? new RandomDithering() : new RandomDithering((int)parameter.Value))
     ];
 
     public IFilterOption? SelectedFilter
@@ -224,7 +226,7 @@ public class EditorViewModel : ViewModelBase
         var savedPoints = GraphPoints
             .Select(point => new System.Drawing.Point(point.X, point.Y))
             .ToList();
-        Func<IFilter> factory = () => new FunctionalFilter(savedPoints.ToList());
+        Func<double?, IFilter> factory = _ => new FunctionalFilter(savedPoints.ToList());
         var existing = Filters.FirstOrDefault(x => x.Name == FilterName);
         if (existing is null)
             Filters.Add(new FilterOption(FilterName, factory));
@@ -237,7 +239,7 @@ public class EditorViewModel : ViewModelBase
 
     private void EditFilter()
     {
-        IFilter? filter = SelectedFilter?.FilterFactory.Invoke();
+        IFilter? filter = SelectedFilter?.FilterFactory.Invoke(SelectedFilter.Parameter);
         if (filter is not IGraphRepresentable graphRepresentable)
             return;
         

@@ -114,7 +114,20 @@
                              >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Name}" />
+                                <StackPanel Orientation="Horizontal" Spacing="10" MinHeight="30">
+                                    <TextBlock Text="{Binding Name}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Margin="30 0 0 0"
+                                               Text="{Binding ParameterName}"
+                                               VerticalAlignment="Center"/>
+                                    <NumericUpDown FontSize="12"
+                                                   Value="{Binding Parameter, Mode=TwoWay}"
+                                                   Minimum="{Binding MinParameterValue}"
+                                                   Maximum="{Binding MaxParameterValue}"
+                                                   Increment="{Binding ParameterIncrement}"
+                                                   IsVisible="{Binding HasParameter}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

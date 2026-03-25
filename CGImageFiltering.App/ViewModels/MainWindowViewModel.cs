@@ -11,6 +11,7 @@
     using GCImageFiltering.Core.Buffers.Enums;
     using GCImageFiltering.Core.Converters;
     using GCImageFiltering.Core.Converters.Abstractions;
+    using GCImageFiltering.Core.Filters.Dithering;
     using GCImageFiltering.Core.Filters.Interfaces;
 
     namespace CGImageFiltering.App.ViewModels;
@@ -86,13 +87,30 @@
             ResetImageCommand = new Commands.RelayCommand(ResetImage, _ => Image is not null);
             ToggleImagePreviewCommand = new Commands.RelayCommand(ToggleImagePreview, _ => Image is not null);
             ApplySelectedFilterCommand =
-                new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory()),
+                new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory(EditorViewModel.SelectedFilter?.Parameter)),
                     CanApplyFilter);
             ConvertToGrayscaleCommand = new Commands.RelayCommand(ConvertToGrayscale, CanModifyImage);
             EditorViewModel.PropertyChanged += OnEditorViewModelPropertyChanged;
         }
 
         private void OnEditorViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCommands();
+
+        private void RandomDithering(object? parameter)
+        {
+            if (Image is null) return;
+            
+            var pixelBuffer = new PixelBuffer(
+                Image.Width,
+                Image.Height,  
+                Image.Pixels.ToArray(),
+                Image.Stride,
+                Image.PixelFormat == PixelFormats.Gray8 ? ColorFormat.Grayscale : ColorFormat.Rgba);
+
+            var ditheredBuffer = new RandomDithering().Apply(pixelBuffer);
+            Image.Pixels = ditheredBuffer.Pixels;
+            Image.UpdateBitmap();
+            InvalidateImage();
+        }
 
         private void ConvertToGrayscale(object? parameter)
         {
