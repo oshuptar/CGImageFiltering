@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata;
 using Avalonia;
 using CGImageFiltering.App.Models.Editor;
 using CGImageFiltering.App.Models.Editor.Enums;
@@ -12,6 +13,7 @@ using GCImageFiltering.Core.Filters.Convolution;
 using GCImageFiltering.Core.Filters.Dithering;
 using GCImageFiltering.Core.Filters.Function;
 using GCImageFiltering.Core.Filters.Interfaces;
+using GCImageFiltering.Core.Quantization;
 
 namespace CGImageFiltering.App.ViewModels;
 
@@ -28,7 +30,8 @@ public class EditorViewModel : ViewModelBase
         new FilterOption("Sharpen", _ => new SharpenConvolutionFilter()),
         new FilterOption("Horizontal Edge Detection", _ => new HorizontalEdgeDetectionConvolutionFilter()),
         new FilterOption("East Emboss", _ => new EastEmbossConvolutionFilter()),
-        new FilterOption("Random Dithering", 4, "Color Levels", min: 2, max: 256, increment: 1,(parameter) => parameter == null ? new RandomDithering() : new RandomDithering((int)parameter.Value))
+        new FilterOption("Random Dithering", 4, "Color Levels", min: 2, max: 256, increment: 1,(parameter) => parameter == null ? new RandomDithering() : new RandomDithering((int)parameter.Value)),
+        new FilterOption("Octree Quantization", parameter: 256, "Colors", min: 1, max: 256 * 256 * 256, increment: 1, (parameter) => parameter == null ? new OctreeQuantization() : new OctreeQuantization((int)parameter.Value))
     ];
 
     public IFilterOption? SelectedFilter
