@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CGImageFiltering.App.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Height="600"
+        Width="600"
+        x:Class="CGImageFiltering.App.Views.ColorPickerWindow"
+        Title="Color Picker"
+        x:DataType="vm:ColorPickerViewModel">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="20" Orientation="Horizontal">
+                <ScrollViewer>
+                    <Image Width="{Binding Width}" 
+                           Height="{Binding Height}"
+                           Source="{Binding Bitmap.Bitmap}"
+                           PointerPressed="OnPointerPressed"
+                           PointerMoved="OnPointerMoved"
+                           PointerReleased="OnPointerReleased"
+                           />
+                </ScrollViewer>
+                <Slider Orientation="Vertical"
+                        Value="{Binding CurrentColor.Hue, Mode=TwoWay}"
+                        Minimum="0"
+                        Maximum="360"
+                        MaxHeight="300"
+                        ValueChanged="RangeBase_OnValueChanged">
+                </Slider>
+            </StackPanel>
+            <Grid Grid.Column="1" VerticalAlignment="Center">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="H:"></TextBlock>
+                        <TextBlock Text="{Binding Hue}"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="S:"></TextBlock>
+                        <TextBlock Text="{Binding Saturation }"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="V:"></TextBlock>
+                        <TextBlock Text="{Binding Value}"></TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Grid>
+</Window>

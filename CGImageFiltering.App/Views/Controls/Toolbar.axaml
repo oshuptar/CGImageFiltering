@@ -13,5 +13,6 @@
         <MenuItem Header="Reset" Command="{Binding ResetImageCommand}"/>
         <MenuItem Header="{Binding PreviewButtonText}" Command="{Binding ToggleImagePreviewCommand}" />
         <MenuItem Header="To Grayscale" Command="{Binding ConvertToGrayscaleCommand}"/>
+        <MenuItem Header="Color Picker" Command="{Binding OpenColorPickerCommand}"/>
     </Menu>
 </UserControl>

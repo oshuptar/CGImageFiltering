@@ -26,6 +26,9 @@ build_property.EnableCodeStyleSeverity =
 [/home/shuptik/pw/sem6/cg/CGImageFiltering/CGImageFiltering.App/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/home/shuptik/pw/sem6/cg/CGImageFiltering/CGImageFiltering.App/Views/ColorPickerWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/home/shuptik/pw/sem6/cg/CGImageFiltering/CGImageFiltering.App/Views/Controls/EditorArea.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 

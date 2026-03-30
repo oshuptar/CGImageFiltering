@@ -7,6 +7,7 @@
     using Avalonia.Threading;
     using CGImageFiltering.App.Buffers;
     using CGImageFiltering.App.ViewModels.Abstractions;
+    using CGImageFiltering.App.Views;
     using GCImageFiltering.Core.Buffers;
     using GCImageFiltering.Core.Buffers.Enums;
     using GCImageFiltering.Core.Converters;
@@ -81,7 +82,10 @@
         public Commands.RelayCommand ToggleImagePreviewCommand { get; }
         public Commands.RelayCommand ApplySelectedFilterCommand { get; }
         public Commands.RelayCommand ConvertToGrayscaleCommand { get; }
+        public Commands.RelayCommand OpenColorPickerCommand { get; }
         public EditorViewModel EditorViewModel { get; } = new();
+        
+        public ColorPickerWindow? ColorPickerWindow { get; set; } 
 
         public MainWindowViewModel()
         {
@@ -93,7 +97,14 @@
                 new Commands.RelayCommand(_ => ApplyFilter(EditorViewModel.SelectedFilter!.FilterFactory(EditorViewModel.SelectedFilter?.Parameter)),
                     CanApplyFilter);
             ConvertToGrayscaleCommand = new Commands.RelayCommand(ConvertToGrayscale, CanModifyImage);
+            OpenColorPickerCommand = new Commands.RelayCommand(_ => OpenColorPickerWindow(), _ => true);
             EditorViewModel.PropertyChanged += OnEditorViewModelPropertyChanged;
+        }
+
+        private void OpenColorPickerWindow()
+        {
+            ColorPickerWindow = new ColorPickerWindow();
+            ColorPickerWindow.Show();
         }
 
         private void OnEditorViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCommands();
